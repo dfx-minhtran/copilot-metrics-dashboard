@@ -19,11 +19,28 @@ interface DateFilterProps {
   limited?: boolean;
 }
 
+const MAX_DAYS_LIMITED =
+  Number(process.env.NEXT_PUBLIC_MAX_DAYS_LIMITED) || 365;
+const EARLIEST_DATA_DATE = new Date(
+  process.env.NEXT_PUBLIC_EARLIEST_DATA_DATE || "2025-11-19"
+);
+
 export const DateFilter = ({ limited = false }: DateFilterProps) => {
   const today = new Date();
-  const defaultDays = limited ? 27 : 31;
-  const lastDays = new Date(today);
+  const defaultDays = limited ? MAX_DAYS_LIMITED : 31;
+  let lastDays = new Date(today);
   lastDays.setDate(today.getDate() - defaultDays);
+ 
+  if (lastDays < EARLIEST_DATA_DATE) {
+    lastDays = EARLIEST_DATA_DATE;
+  }
+
+  const earliestSelectableDate = new Date(
+    Math.max(
+      EARLIEST_DATA_DATE.getTime(),
+      today.getTime() - MAX_DAYS_LIMITED * 24 * 60 * 60 * 1000
+    )
+  );
 
   const getInitialDateRange = () => {
     if (typeof window === 'undefined') {
@@ -31,9 +48,13 @@ export const DateFilter = ({ limited = false }: DateFilterProps) => {
     }
     
     const params = new URLSearchParams(window.location.search);
-    const startDate = parseDate(params.get('startDate'));
+    let startDate = parseDate(params.get('startDate'));
     const endDate = parseDate(params.get('endDate'));
     
+    if (startDate && startDate < EARLIEST_DATA_DATE) {
+      startDate = EARLIEST_DATA_DATE;
+    }
+
     if (startDate && endDate) {
       return { from: startDate, to: endDate };
     }
@@ -104,7 +125,7 @@ export const DateFilter = ({ limited = false }: DateFilterProps) => {
             selected={date}
             onSelect={setDate}
             numberOfMonths={2}
-            disabled={limited ? { before: new Date(today.getTime() - (27 * 24 * 60 * 60 * 1000)) } : undefined}
+            disabled={limited ? { before: earliestSelectableDate } : undefined}
           />
           <div className="flex justify-between m-2 gap-2">
             <Button 

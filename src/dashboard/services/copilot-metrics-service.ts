@@ -8,6 +8,10 @@ import { ensureGitHubEnvConfig } from "./env-service";
 import { stringIsNullOrEmpty, applyTimeFrameLabel } from "../utils/helpers";
 import { sampleData } from "./sample-data";
 
+const EARLIEST_ORG_METRICS_DATE = new Date(
+  process.env.EARLIEST_ORG_METRICS_DATE || "2025-11-19"
+);
+
 export interface IFilter {
   startDate?: Date;
   endDate?: Date;
@@ -100,8 +104,14 @@ export const getCopilotMetricsFromApi = async (
   try {
     const queryParams = new URLSearchParams();
 
-    if (filter.startDate) {
-      queryParams.append("since", format(filter.startDate, "yyyy-MM-dd"));
+    let startDate = filter.startDate;
+
+    if (startDate && startDate < EARLIEST_ORG_METRICS_DATE) {
+      startDate = EARLIEST_ORG_METRICS_DATE;
+    }
+
+    if (startDate) {
+      queryParams.append("since", format(startDate, "yyyy-MM-dd"));
     }
     if (filter.endDate) {
       queryParams.append("until", format(filter.endDate, "yyyy-MM-dd"));
@@ -149,8 +159,14 @@ export const getCopilotTeamsMetricsFromApi = async (
 
     const queryParams = new URLSearchParams();
 
-    if (filter.startDate) {
-      queryParams.append("since", format(filter.startDate, "yyyy-MM-dd"));
+    let startDate = filter.startDate;
+
+    if (startDate && startDate < EARLIEST_ORG_METRICS_DATE) {
+      startDate = EARLIEST_ORG_METRICS_DATE;
+    }
+
+    if (startDate) {
+      queryParams.append("since", format(startDate, "yyyy-MM-dd"));
     }
     if (filter.endDate) {
       queryParams.append("until", format(filter.endDate, "yyyy-MM-dd"));
