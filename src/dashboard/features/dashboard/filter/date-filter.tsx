@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface DateFilterProps {
   limited?: boolean;
@@ -65,6 +65,12 @@ export const DateFilter = ({ limited = false }: DateFilterProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    setDate(getInitialDateRange());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const applyFilters = () => {
     if (date?.from && date?.to) {
