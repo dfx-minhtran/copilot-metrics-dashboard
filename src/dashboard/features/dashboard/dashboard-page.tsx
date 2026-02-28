@@ -9,6 +9,7 @@ import { TotalChatsAndAcceptances } from "./charts/total-chat-suggestions-and-ac
 import { TotalCodeLineSuggestionsAndAcceptances } from "./charts/total-code-line-suggestions-and-acceptances";
 import { TotalSuggestionsAndAcceptances } from "./charts/total-suggestions-and-acceptances";
 import { DataProvider } from "./dashboard-state";
+import { PerUserUsage } from "./per-user-usage";
 import { TimeFrameToggle } from "./filter/time-frame-toggle";
 import { Header } from "./header";
 import { getCopilotMetrics, IFilter as MetricsFilter } from "@/services/copilot-metrics-service";
@@ -75,6 +76,7 @@ export default async function Dashboard(props: IProps) {
             <TotalChatsAndAcceptances />
             <Language />
             <Editor />
+            <PerUserUsage />
           </div>
         </div>
       </main>

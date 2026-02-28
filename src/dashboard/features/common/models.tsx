@@ -177,3 +177,98 @@ export interface CopilotUsage {
     copilot_dotcom_chat: CopilotDotcomChatMetrics;
     copilot_dotcom_pull_requests: CopilotDotcomPullRequestsMetrics;
   }
+
+  export interface CopilotUsers1DayReportLinks {
+    download_links: string[];
+    report_day: string;
+  }
+
+  export interface CopilotUsers28DayReportLinks {
+    download_links: string[];
+    report_start_day: string;
+    report_end_day: string;
+  }
+  
+  export interface PerUserDailyUsage {
+    day: string;
+    user_login: string;
+    user_initiated_interaction_count: number;
+    code_generation_activity_count: number;
+    code_acceptance_activity_count: number;
+  }
+  
+  export interface PerUserSeriesSummary {
+    user_login: string;
+    total_interactions: number;
+    total_generations: number;
+    total_acceptances: number;
+    total_loc_suggested_to_add: number;
+    total_loc_suggested_to_delete: number;
+    total_loc_added: number;
+    total_loc_deleted: number;
+  }
+  
+  export interface PerUserIdeSummary {
+    ide: string;
+    interactions: number;
+    generations: number;
+    acceptances: number;
+    loc_suggested_to_add_sum: number;
+    loc_suggested_to_delete_sum: number;
+    loc_added_sum: number;
+    loc_deleted_sum: number;
+  }
+  
+  export interface PerUserFeatureSummary {
+    feature: string;
+    interactions: number;
+    generations: number;
+    acceptances: number;
+    loc_suggested_to_add_sum: number;
+    loc_suggested_to_delete_sum: number;
+    loc_added_sum: number;
+    loc_deleted_sum: number;
+  }
+  
+  export interface PerUserLanguageFeatureSummary {
+    language: string;
+    feature: string;
+    generations: number;
+    acceptances: number;
+    loc_suggested_to_add_sum: number;
+    loc_suggested_to_delete_sum: number;
+    loc_added_sum: number;
+    loc_deleted_sum: number;
+  }
+  
+  export interface PerUserLanguageModelSummary {
+    language: string;
+    model: string;
+    generations: number;
+    acceptances: number;
+    loc_suggested_to_add_sum: number;
+    loc_suggested_to_delete_sum: number;
+    loc_added_sum: number;
+    loc_deleted_sum: number;
+  }
+  
+  export interface PerUserModelFeatureSummary {
+    model: string;
+    feature: string;
+    interactions: number;
+    generations: number;
+    acceptances: number;
+    loc_suggested_to_add_sum: number;
+    loc_suggested_to_delete_sum: number;
+    loc_added_sum: number;
+    loc_deleted_sum: number;
+  }
+  
+  export interface PerUserSeries extends PerUserSeriesSummary {
+    daily: PerUserDailyUsage[];
+    by_ide: PerUserIdeSummary[];
+    by_feature: PerUserFeatureSummary[];
+    by_language_feature: PerUserLanguageFeatureSummary[];
+    by_language_model: PerUserLanguageModelSummary[];
+    by_model_feature: PerUserModelFeatureSummary[];
+  }

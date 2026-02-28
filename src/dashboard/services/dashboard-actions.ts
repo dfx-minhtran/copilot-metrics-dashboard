@@ -1,8 +1,11 @@
 "use server";
 
-import { date } from "zod";
 import { getCopilotMetrics, IFilter as MetricsFilter } from "./copilot-metrics-service";
 import { getCopilotSeatsManagement, IFilter as SeatServiceFilter } from "./copilot-seat-service";
+import {
+  getPerUserMetrics28DayUsage,
+  PerUserMetricsFilter,
+} from "./copilot-user-metrics-service";
 
 export async function refreshMetricsData(filter: {
   startDate?: Date;
@@ -66,6 +69,40 @@ export async function refreshSeatsData(filter: {
     return {
       success: true,
       data: seats.response,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function getPerUser28DayUsage(filter: {
+  date?: Date;
+  enterprise?: string;
+  organization?: string;
+}) {
+  try {
+    const perUserFilter: PerUserMetricsFilter = {
+      enterprise: filter.enterprise || "",
+      organization: filter.organization || "",
+    };
+
+    const result = await getPerUserMetrics28DayUsage(perUserFilter);
+
+    if (result.status !== "OK") {
+      return {
+        success: false,
+        error:
+          result.errors[0]?.message ||
+          "Failed to fetch per-user usage metrics",
+      };
+    }
+
+    return {
+      success: true,
+      data: result.response,
     };
   } catch (error) {
     return {

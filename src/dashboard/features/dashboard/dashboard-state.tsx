@@ -15,7 +15,9 @@ import { CopilotSeatsData } from "../common/models";
 import {
   refreshMetricsData,
   refreshSeatsData,
+  getPerUser28DayUsage,
 } from "@/services/dashboard-actions";
+import { PerUserSeries } from "@/features/common/models";
 
 interface IProps extends PropsWithChildren {
   copilotUsages: CopilotUsageOutput[];
@@ -44,6 +46,9 @@ class DashboardState {
   public timeFrame: TimeFrame = "weekly";
   public hideWeekends: boolean = false;
   public isLoading: boolean = false;
+  public perUserSeries: PerUserSeries[] = [];
+  public selectedUserLogin: string | null = null;
+  public perUserError: string | null = null;
 
   public seatsData: CopilotSeatsData = {} as CopilotSeatsData;
   public teamsData: GitHubTeam[] = [];
@@ -195,6 +200,9 @@ class DashboardState {
     this.teams.forEach((item) => (item.isSelected = false));
     this.hideWeekends = false;
     this.hasPendingTeamChanges = false; // Reset pending changes
+    this.perUserError = null;
+    this.perUserSeries = [];
+    this.selectedUserLogin = null;
     this.applyFilters();
 
     // Refresh both metrics and seats data from server (no URL changes)
@@ -209,6 +217,52 @@ class DashboardState {
   public onTimeFrameChange(timeFrame: TimeFrame): void {
     this.timeFrame = timeFrame;
     this.applyFilters();
+  }
+
+  public get selectedUserSeries(): PerUserSeries | null {
+    if (!this.selectedUserLogin || this.perUserSeries.length === 0) {
+      return null;
+    }
+    return (
+      this.perUserSeries.find(
+        (series) => series.user_login === this.selectedUserLogin
+      ) || null
+    );
+  }
+
+  public selectUser(login: string): void {
+    this.selectedUserLogin = login;
+  }
+
+  public async loadPerUserMetrics(): Promise<void> {
+    this.isLoading = true;
+    this.perUserError = null;
+    this.perUserSeries = [];
+    this.selectedUserLogin = null;
+
+    try {
+      const result = await getPerUser28DayUsage({
+        enterprise: this.currentFilter.enterprise,
+        organization: this.currentFilter.organization,
+      });
+
+      if (!result.success || !result.data) {
+        this.perUserError =
+          result.error || "Failed to fetch per-user usage metrics";
+        return;
+      }
+
+      const series = result.data.series || [];
+      this.perUserSeries = series;
+      if (series.length > 0) {
+        this.selectedUserLogin = series[0].user_login;
+      }
+    } catch (error) {
+      console.error("Failed to load per-user metrics:", error);
+      this.perUserError = "An unexpected error occurred while loading per-user metrics";
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   private applyFilters(): void {
